@@ -2,6 +2,8 @@ package test.moysklad;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import test.moysklad.Exception.BalanceNotZeroException;
+import test.moysklad.Exception.PositiveCreditException;
 
 import java.util.List;
 
@@ -12,67 +14,66 @@ public class BankAccountController {
     @Autowired
     private IBankAccountService bankAccounts;
 
-    @RequestMapping("/")
+    @RequestMapping(value = "/", method = RequestMethod.GET)
     public List<BankAccount> getAll() { //выводим все BankAccount
         return bankAccounts.getAll();
     }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.POST)
-    public String create(@PathVariable Integer id) {
-        String message = bankAccounts.addAccount(id);
-        if (message.equals(bankAccounts.Success)) {//проверяем, что аккаунт добавлен
-            return message + bankAccounts.getById(id).toString();
+    public BankAccount create(@PathVariable Integer id) {
+//        Integer ID = Integer.parseInt(id);
+        if (id < 10000 | id > 99999) { //исключаем ввод некорректного id
+            throw new NumberFormatException();
         }
-        return message;//выводим ошибку
+        return bankAccounts.addAccount(id);
     }
 
     @RequestMapping(value = "/{id}/deposit/{credit}", method = RequestMethod.PUT)
-    public String deposit(@PathVariable Integer id,
-                          @PathVariable Integer credit) {
+    public BankAccount deposit(@PathVariable Integer id,
+                               @PathVariable Integer credit) {
         if (credit < 0) { //исключаем ввод отрицательной суммы
-            return bankAccounts.errPositiveDeposit;
+            throw new PositiveCreditException();
         }
-        String message = bankAccounts.updateBalance(id, credit);
-        try {
-            return message + bankAccounts.getById(id).toString();//выводим обновлённые данные
-        } catch (NullPointerException ex) {
-            return message;//выводим ошибку
-        }
+        return bankAccounts.updateBalance(id, credit);
     }
 
     @RequestMapping(value = "/{id}/withdraw/{credit}", method = RequestMethod.PUT)
-    public String withdraw(@PathVariable Integer id,
-                           @PathVariable Integer credit) {
+    public BankAccount withdraw(@PathVariable Integer id,
+                                @PathVariable Integer credit) {
         if (credit < 0) {//исключаем ввод отрицательной суммы
-            return bankAccounts.errPositiveWithdraw;
+            throw new PositiveCreditException();
         }
-        String message = bankAccounts.updateBalance(id, -credit);//credit с минусом, потому что деньги снимаем, а не зачисляем
-        try {
-            return message + bankAccounts.getById(id).toString();//выводим обновлённые данные
-        } catch (NullPointerException ex) {
-            return message;//выводим ошибку
-        }
+        return bankAccounts.updateBalance(id, -credit);//credit с минусом, потому что деньги снимаем, а не зачисляем
     }
 
-    @RequestMapping("/{id}/balance")
-    public String checkBalance(@PathVariable Integer id) {
-        try{
-            return bankAccounts.Success + bankAccounts.getById(id).toString();
-        }catch (NullPointerException ex){
-            return bankAccounts.errIdNotRegistered;//выводим ошибку, если аккаунта с таким id нет
-        }
+    @RequestMapping(value = "/{id}/balance", method = RequestMethod.GET)
+    public BankAccount checkBalance(@PathVariable Integer id) {
+        return bankAccounts.getById(id);
     }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
-    public String delete(@PathVariable Integer id) {
-        try {
-            BankAccount bankAccount = bankAccounts.getById(id);
-            if (bankAccount.getBalance() > 0) {//проверяем наличие денег на балансе аккаунта
-                return bankAccounts.errBalanceNotZero + bankAccount.toString();
-            }
-        }catch (NullPointerException ex){//обрабатываем исключение в случае некорректного id
-            return bankAccounts.errIdNotRegistered;
+    public SomeMessage delete(@PathVariable Integer id) {
+        BankAccount bankAccount = bankAccounts.getById(id);
+        if (bankAccount.getBalance() > 0) {//проверяем наличие денег на балансе аккаунта
+            throw new BalanceNotZeroException();
         }
-        return bankAccounts.removeAccount(id);
+        bankAccounts.removeAccount(id);
+        return new SomeMessage("Account was deleted.");
+    }
+
+    private static class SomeMessage {
+        private String message;
+
+        public SomeMessage(String message) {
+            this.message = message;
+        }
+
+        public String getMessage() {
+            return message;
+        }
+
+        public void setMessage(String message) {
+            this.message = message;
+        }
     }
 }

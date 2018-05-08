@@ -1,6 +1,5 @@
 server:
     port: 8086
-
 spring:
     main:
         banner-mode: "off"
@@ -8,7 +7,6 @@ spring:
         platform: h2
         driverClassName: org.h2.Driver
         url: jdbc:h2:mem:test;MODE=PostgreSQL
-
 logging:
     level:
         org:
