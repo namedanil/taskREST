@@ -20,7 +20,7 @@ public class BankAccountController {
     }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.POST)
-    public BankAccount create(@PathVariable Integer id) {
+    public BankAccount create(@PathVariable("id") Integer id) {
 //        Integer ID = Integer.parseInt(id);
         if (id < 10000 | id > 99999) { //исключаем ввод некорректного id
             throw new NumberFormatException();
@@ -29,8 +29,8 @@ public class BankAccountController {
     }
 
     @RequestMapping(value = "/{id}/deposit/{credit}", method = RequestMethod.PUT)
-    public BankAccount deposit(@PathVariable Integer id,
-                               @PathVariable Integer credit) {
+    public BankAccount deposit(@PathVariable("id") Integer id,
+                               @PathVariable("credit") Integer credit) {
         if (credit < 0) { //исключаем ввод отрицательной суммы
             throw new PositiveCreditException();
         }
@@ -38,8 +38,8 @@ public class BankAccountController {
     }
 
     @RequestMapping(value = "/{id}/withdraw/{credit}", method = RequestMethod.PUT)
-    public BankAccount withdraw(@PathVariable Integer id,
-                                @PathVariable Integer credit) {
+    public BankAccount withdraw(@PathVariable("id") Integer id,
+                                @PathVariable("credit") Integer credit) {
         if (credit < 0) {//исключаем ввод отрицательной суммы
             throw new PositiveCreditException();
         }
@@ -47,12 +47,12 @@ public class BankAccountController {
     }
 
     @RequestMapping(value = "/{id}/balance", method = RequestMethod.GET)
-    public BankAccount checkBalance(@PathVariable Integer id) {
+    public BankAccount checkBalance(@PathVariable("id") Integer id) {
         return bankAccounts.getById(id);
     }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
-    public SomeMessage delete(@PathVariable Integer id) {
+    public SomeMessage delete(@PathVariable("id") Integer id) {
         BankAccount bankAccount = bankAccounts.getById(id);
         if (bankAccount.getBalance() > 0) {//проверяем наличие денег на балансе аккаунта
             throw new BalanceNotZeroException();
@@ -61,7 +61,7 @@ public class BankAccountController {
         return new SomeMessage("Account was deleted.");
     }
 
-    private static class SomeMessage {
+    public static class SomeMessage {
         private String message;
 
         public SomeMessage(String message) {

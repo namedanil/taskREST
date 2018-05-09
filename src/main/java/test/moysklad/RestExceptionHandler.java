@@ -8,12 +8,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
-import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 import test.moysklad.Exception.BalanceNotZeroException;
 import test.moysklad.Exception.PositiveCreditException;
-
-import javax.xml.ws.http.HTTPException;
-
 @ControllerAdvice
 public class RestExceptionHandler {
     //код 400 - ошибка на стороне клиента
