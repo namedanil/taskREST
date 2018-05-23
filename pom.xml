@@ -8,10 +8,6 @@
     <artifactId>taskREST</artifactId>
     <version>0.1.0</version>
     <name>MyREST_realization</name>
-    <description>
-        Test task for the company MoySklad.
-        Implementing the REST API for working with accounts.
-    </description>
 
     <parent>
         <groupId>org.springframework.boot</groupId>
